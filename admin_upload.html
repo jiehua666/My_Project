@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
+    <title>管理员上传卡牌 - KPP</title>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // 检查用户是否为管理员
+            fetch('php/check_admin.php')
+              .then(response => response.json())
+              .then(data => {
+                    if (!data.is_admin) {
+                        window.location.href = 'index.html';
+                    }
+                });
+
+            // 获取已上传的卡牌信息
+            fetch('php/get_uploaded_cards.php')
+              .then(response => response.json())
+              .then(data => {
+                    const cardList = document.getElementById('card-list');
+                    // 添加网格布局类
+                    cardList.classList.add('grid', 'grid-cols-1', 'sm:grid-cols-2', 'md:grid-cols-3', 'lg:grid-cols-4', 'xl:grid-cols-5', 'gap-4');
+                    data.forEach(card => {
+                        const cardItem = document.createElement('div');
+                        cardItem.classList.add('bg-white', 'p-4', 'rounded', 'shadow');
+                        // 确保图片路径正确
+                        const imagePath = card.image_url.replace('C:/Users/Administrator/Desktop/KPP/main/PHP/', ''); 
+                        const fileName = imagePath.split('/').pop();
+                        cardItem.innerHTML = `
+                            <img src="${imagePath}" alt="${card.name}" class="w-full h-auto max-w-[200px] mx-auto mb-2">
+                            <h3 class="text-lg font-bold">${card.name}</h3>
+                            <p>${card.description}</p>
+                            <p class="text-sm text-gray-600">文件名: ${fileName}</p>
+                        `;
+                        cardList.appendChild(cardItem);
+                    });
+                });
+        });
+    </script>
+</head>
+
+<body>
+    <!-- 菜单栏 -->
+    <nav class="bg-gray-800 text-white p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="#" class="text-xl font-bold">KPP Logo</a>
+            <div class="flex space-x-4 nav-links">
+                <!-- 导航链接将根据登录状态动态更新 -->
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto p-4">
+        <h2 class="text-2xl font-bold mb-4">管理员添加卡牌信息</h2>
+        <form action="php/upload_card.php" method="post">
+            <div class="mb-4">
+                <label for="name" class="block text-gray-700 font-bold mb-2">卡牌名称</label>
+                <input type="text" id="name" name="name" class="border border-gray-400 p-2 w-full">
+            </div>
+            <div class="mb-4">
+                <label for="description" class="block text-gray-700 font-bold mb-2">卡牌描述</label>
+                <textarea id="description" name="description" class="border border-gray-400 p-2 w-full"></textarea>
+            </div>
+            <div class="mb-4">
+                <label for="image_filename" class="block text-gray-700 font-bold mb-2">卡牌图片文件名</label>
+                <input type="text" id="image_filename" name="image_filename" class="border border-gray-400 p-2 w-full">
+            </div>
+            <button type="submit" class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600">添加</button>
+        </form>
+
+        <h2 class="text-2xl font-bold mb-4 mt-8">已上传的卡牌</h2>
+        <div id="card-list"></div>
+    </div>
+</body>
+
+</html>
+    
